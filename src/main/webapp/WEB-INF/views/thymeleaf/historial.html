@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Historial de Suscripciones</title>
+    <script>
+        function actualizarVisibilidad() {
+            document.getElementById('divBasico').style.display =
+                document.getElementById('checkBasico').checked ? 'block' : 'none';
+            document.getElementById('divPremium').style.display =
+                document.getElementById('checkPremium').checked ? 'block' : 'none';
+        }
+        window.onload = actualizarVisibilidad;
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ead0fb;
+            height: 100vh;
+            margin: 20px;
+        }
+        main{
+            display: flex;
+            flex-direction: column;
+            align-content: center;
+            align-items: center;
+        }
+        .contenedor{
+            display: flex;
+            gap: 50px;
+        }
+        header {
+            margin-bottom: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        button {
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div th:replace="navbar :: navbar"></div>
+</header>
+<h1>Historial de Suscripciones</h1>
+<main>
+    <form id="filtroForm" method="get" action="/irAVerHistorial">
+        <label>
+            <input id="checkBasico" type="checkbox" name="plan" value="basico" checked onchange="actualizarVisibilidad();"> B&aacute;sico
+        </label>
+        <label>
+            <input id="checkPremium" type="checkbox" name="plan" value="premium" checked onchange="actualizarVisibilidad();"> Premium
+        </label>
+    </form>
+
+    <section class="contenedor">
+        <div id="divBasico">
+            <h2>Clientes B&aacute;sicos</h2>
+            <ul>
+                <th:block th:each="cliente : ${clientesBasicos}">
+                    <li>
+                        DNI: <span th:text="${cliente.DNI}"></span> - Nombre: <span th:text="${cliente.nombre}"></span>
+                        <form method="post" th:action="@{/quitarClienteDeSuscripcion}" style="display:inline;">
+                            <input type="hidden" name="_method" value="put"/>
+                            <input type="hidden" name="clienteDNI" th:value="${cliente.DNI}"/>
+                            <input type="hidden" name="suscripcionId" value="1"/>
+                            <button type="submit">Quitar</button>
+                        </form>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+
+        <div id="divPremium">
+            <h2>Clientes Premium</h2>
+            <ul>
+                <th:block th:each="cliente : ${clientesPremium}">
+                    <li>
+                        DNI: <span th:text="${cliente.DNI}"></span> - Nombre: <span th:text="${cliente.nombre}"></span>
+                        <form method="post" th:action="@{/quitarClienteDeSuscripcion}" style="display:inline;">
+                            <input type="hidden" name="_method" value="put"/>
+                            <input type="hidden" name="clienteDNI" th:value="${cliente.DNI}"/>
+                            <input type="hidden" name="suscripcionId" value="2"/>
+                            <button type="submit">Quitar</button>
+                        </form>
+                    </li>
+                </th:block>
+            </ul>
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>
