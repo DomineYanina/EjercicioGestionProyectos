@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Historial de Proyectos</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script>
+    function filtrarProyectos() {
+      document.getElementById('proyectosDesarrollo').style.display = document.getElementById('checkDesarrollo').checked ? '' : 'none';
+      document.getElementById('proyectosMarketing').style.display = document.getElementById('checkMarketing').checked ? '' : 'none';
+      document.getElementById('proyectosInvestigacion').style.display = document.getElementById('checkInvestigacion').checked ? '' : 'none';
+    }
+  </script>
+</head>
+<body>
+<header>
+  <div th:replace="navbar :: navbar"></div>
+</header>
+<div class="container mt-5">
+  <h2 class="mb-4">Historial de Proyectos</h2>
+
+  <!-- Filtros por tipo de proyecto -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <label class="form-label me-2">Filtrar por tipo:</label>
+      <div class="form-check form-check-inline">
+        <input type="checkbox" id="checkDesarrollo" checked class="form-check-input" onclick="filtrarProyectos()">
+        <label class="form-check-label" for="checkDesarrollo">Desarrollo</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input type="checkbox" id="checkMarketing" checked class="form-check-input" onclick="filtrarProyectos()">
+        <label class="form-check-label" for="checkMarketing">Marketing</label>
+      </div>
+      <div class="form-check form-check-inline">
+        <input type="checkbox" id="checkInvestigacion" checked class="form-check-input" onclick="filtrarProyectos()">
+        <label class="form-check-label" for="checkInvestigacion">Investigación</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado de proyectos por tipo -->
+  <div id="proyectosDesarrollo" class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4 class="card-title">Proyectos de Desarrollo</h4>
+      <ul class="list-group mb-2">
+        <li th:each="proyecto : ${proyectosDesarrollo}" class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <b th:text="${proyecto.nombre}"></b> - <span th:text="${proyecto.descripcion}"></span>
+          </span>
+          <form th:action="@{/eliminarProyecto}" method="post">
+            <input type="hidden" name="proyectoId" th:value="${proyecto.id}" />
+            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div id="proyectosMarketing" class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4 class="card-title">Proyectos de Marketing</h4>
+      <ul class="list-group mb-2">
+        <li th:each="proyecto : ${proyectosMarketing}" class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <b th:text="${proyecto.nombre}"></b> - <span th:text="${proyecto.descripcion}"></span>
+          </span>
+          <form th:action="@{/eliminarProyecto}" method="post">
+            <input type="hidden" name="proyectoId" th:value="${proyecto.id}" />
+            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div id="proyectosInvestigacion" class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4 class="card-title">Proyectos de Investigación</h4>
+      <ul class="list-group mb-2">
+        <li th:each="proyecto : ${proyectosInvestigacion}" class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <b th:text="${proyecto.nombre}"></b> - <span th:text="${proyecto.descripcion}"></span>
+          </span>
+          <form th:action="@{/eliminarProyecto}" method="post">
+            <input type="hidden" name="proyectoId" th:value="${proyecto.id}" />
+            <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Consultar tareas por proyecto -->
+  <div class="card shadow-sm mb-4">
+    <div class="card-body">
+      <form th:action="@{/consultarTareasPorProyecto}" method="get" class="row g-3 align-items-center">
+        <div class="col-auto">
+          <label for="proyectoSelect" class="form-label">Selecciona un proyecto:</label>
+        </div>
+        <div class="col-auto">
+          <select id="proyectoSelect" name="proyectoId" class="form-select" required>
+            <option value="" disabled selected>Seleccione...</option>
+            <option th:each="proyecto : ${proyectosDesarrollo}" th:value="${proyecto.id}" th:text="${proyecto.nombre}"></option>
+            <option th:each="proyecto : ${proyectosMarketing}" th:value="${proyecto.id}" th:text="${proyecto.nombre}"></option>
+            <option th:each="proyecto : ${proyectosInvestigacion}" th:value="${proyecto.id}" th:text="${proyecto.nombre}"></option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <button type="submit" class="btn btn-primary">Ver tareas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Listado de tareas (solo si se consultó por proyecto) -->
+  <div th:if="${tareasPorProyecto}" class="card shadow-sm mb-4">
+    <div class="card-body">
+      <h4 class="card-title">Tareas del proyecto</h4>
+      <ul class="list-group">
+        <li th:each="tarea : ${tareasPorProyecto}" class="list-group-item d-flex justify-content-between align-items-center">
+          <span>
+            <b th:text="${tarea.nombre}"></b> - <span th:text="${tarea.descripcion}"></span>
+            <span class="ms-2 badge bg-secondary" th:text="${tarea.estado}"></span>
+            <span class="ms-2" th:if="${tarea.empleado != null}">Empleado: <span th:text="${tarea.empleado.nombre}"></span></span>
+          </span>
+          <div>
+            <form th:action="@{/cambiarEstadoTarea}" method="post" class="d-inline">
+              <input type="hidden" name="tareaId" th:value="${tarea.id}" />
+              <button type="submit" class="btn btn-info btn-sm">Cambiar estado</button>
+            </form>
+            <form th:action="@{/eliminarTarea}" method="post" class="d-inline ms-2">
+              <input type="hidden" name="tareaId" th:value="${tarea.id}" />
+              <button type="submit" class="btn btn-warning btn-sm">Eliminar</button>
+            </form>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</div>
+</body>
+</html>
